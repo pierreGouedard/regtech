@@ -1,0 +1,12 @@
+# Data Catalog Smart testing
+commit_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/commits.csv
+
+project_wrapper:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/project_wrapper.pkl
+
+transformed_commits:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/transformed_commits.pkl

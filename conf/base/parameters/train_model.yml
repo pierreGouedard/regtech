@@ -1,0 +1,15 @@
+# Parameters Smart testing
+path_project: data/train_inputs/guava
+path_c2v: data/train_inputs/c2v_models/java-large-release/saved_model_iter3.release
+branch: master
+date_start: 2021-01-01
+date_end: 2021-09-01
+git_options:
+  log:
+    - '--no-merges'
+    - '--full-history'
+  diff:
+    - '--oneline'
+custom_message_regex:
+  regfstr_code: (?i)(regsftr\s?\d{4})
+  alm_code: (?i)(alm\s?\d{4})
