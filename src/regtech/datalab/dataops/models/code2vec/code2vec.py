@@ -14,21 +14,6 @@ def predict_vector():
     pass
 
 
-test = """private ResourceResolver f(Strategy properties) {
-    VersionResourceResolver resolver = new VersionResourceResolver();
-    if (properties.getFixed().isEnabled()) {
-        String version = properties.getFixed().getVersion();
-        String[] paths = properties.getFixed().getPaths();
-        resolver.addFixedVersionStrategy(version, paths);
-    }
-    if (properties.getContent().isEnabled()) {
-        String[] paths = properties.getContent().getPaths();
-        resolver.addContentVersionStrategy(paths);
-    }
-    return resolver;
-}"""
-
-
 class Code2VecWrapper(object):
     """
     Code2Vec wrapper that implement predict vector method.
@@ -37,7 +22,7 @@ class Code2VecWrapper(object):
     jar_path = os.path.join(os.path.dirname(__file__), 'JavaExtractor/JPredict/target/JavaExtractor-0.0.1-SNAPSHOT.jar')
     max_path_length = 8
     max_path_width = 2
-    n_embeddings = 100
+    n_embeddings = 384
 
     def __init__(self, model_path: str, on_extraction_error: str = 'skip'):
         self.config = PredConfig(set_defaults=True, load_from_kwargs=True, verify=True, **{"load_path": model_path})
@@ -70,6 +55,11 @@ class Code2VecWrapper(object):
             tmp_file = self.driver.TempFile(prefix="tmp_", suffix=".java")
             with open(tmp_file.path, 'w') as handle:
                 handle.write(code)
+            print('_________')
+            for l in code.split('\n'):
+                print(l)
+            print('_________')
+
             predict_lines, hash_to_string_dict = self.path_extractor.extract_paths(tmp_file.path)
 
             if predict_lines is not None:

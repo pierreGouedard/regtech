@@ -1,22 +1,31 @@
 # Global import
-from typing import Optional
+from typing import Optional, List
 import pandas as pd
+from faker import Faker
+from random import randint
+import re
+import numpy as np
+
+# Local import
+from regtech.datalab.dataops.encoders.param_encoder import ParamEncoder
 
 
-def extract_test_parameters(create_random_test: bool = True, n_tests: Optional[int] = None) -> pd.DataFrame:
+def extract_test_parameters(df_tests: pd.DataFrame, regex_parameters: Optional[re.Pattern] = None) -> pd.DataFrame:
     """
 
     Args:
-        is_test:
+        df_tests:
+        regex_parameters
 
     Returns:
 
     """
-    if create_random_test:
-        l_parameters, l_values = 'random_string', []
-        df_tests = pd.DataFrame()
-    else:
-        raise ValueError('extracting test is not implemented')
+    # Extract parameters
+    param_encoder = ParamEncoder(re.compile(regex_parameters))
+    param_encoder.fit(df_tests)
+    d_encoded_tests = param_encoder.transform(df_tests)
 
-    return df_tests
+    return d_encoded_tests
+
+
 

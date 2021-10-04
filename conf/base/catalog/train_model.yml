@@ -11,13 +11,13 @@ transformed_commits:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/transformed_commits.pkl
 
-test_parameters:
+tests:
   type: pandas.CSVDataSet
-  filepath: data/train_inputs/test_parameters.pkl
+  filepath: data/train_inputs/tests.csv
 
-jira_info:
-  type: pandas.CSVDataSet
-  filepath: data/train_inputs/jira_info.pkl
+test_parameters:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/test_parameters.pkl
 
 augmented_test_parameters:
   type: pandas.CSVDataSet
@@ -26,3 +26,9 @@ augmented_test_parameters:
 distributed_tests:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/distributed_tests.pkl
+
+jira_info:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/jira_info.csv
+
+

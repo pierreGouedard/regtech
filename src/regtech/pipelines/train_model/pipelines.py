@@ -6,6 +6,7 @@ from kedro.pipeline import Pipeline, node
 from .commits.load_commits import build_commit_dataset
 from .commits.fit_model import fit_feature_model
 from .commits.transform_commits import transform_commits
+from .tests.generate_fake_tests import generate_tests
 from .tests.extract_test_parameters import extract_test_parameters
 from .tests.augment_test_parameters import augment_tests
 from .tests.transform_tests import transform_tests
@@ -68,8 +69,15 @@ def create_test_pipeline() -> Pipeline:
     return Pipeline(
         [
             node(
+                generate_tests,
+                inputs={"n_tests": "params:n_tests", "l_parameters": "params:test_parameters"},
+                outputs="tests",
+                name="generate_test_parameters",
+                tags=["generate_test_parameters"]
+            ),
+            node(
                 extract_test_parameters,
-                inputs={"create_random_test": "params:create_random_test"},
+                inputs={"df_tests": "tests", "regex_parameters": "params:regex_parameters"},
                 outputs="test_parameters",
                 name="extract_test_parameters",
                 tags=["extract_test_parameters"]
@@ -106,7 +114,9 @@ def create_jira_pipeline() -> Pipeline:
         [
             node(
                 extract_jira_info,
-                inputs={"create_random_join_info": "params:create_random_join_info"},
+                inputs={
+                    "create_random_join_info": "params:create_random_join_info", "n_tests": "params:n_tests",
+                    "n_commit_group": "params:n_commit_group"},
                 outputs="jira_info",
                 name="extract_jira_info",
                 tags=["extract_jira_info"]

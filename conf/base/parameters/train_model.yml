@@ -11,10 +11,36 @@ git_options:
   diff:
     - '--oneline'
 custom_message_regex:
-  regfstr_code: (?i)(regsftr\s?\d{4})
-  alm_code: (?i)(alm\s?\d{4})
+  regfstr_code: (?i)(regsftr\s?\d{2,5})
+  alm_code: (?i)(alm\s?\d{2,5})
 
-n_test: 100
+n_tests: 100
 n_commit_group: 1000
 create_random_test: True
 create_random_join_info: True
+regex_parameters: ((?:[a-z]|[0-9])+)=((?:[a-z]|[0-9])+)
+test_parameters:
+  - param1=v1
+  - param1=v2
+  - param1=v3
+  - param2=v1
+  - param2=v2
+  - param3=v1
+  - param3=v2
+  - param3=v3
+  - param3=v4
+  - param3=v5
+  - param3=v6
+  - param4=v1
+  - param4=v2
+  - param5=<int>
+  - param6=v1
+  - param6=v2
+  - param7=v1
+  - param7=v2
+  - param7=v3
+  - param7=v4
+  - param7=v5
+  - param8=<int>
+  - param9=v1
+  - param9=v2

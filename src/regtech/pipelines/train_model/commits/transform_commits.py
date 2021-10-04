@@ -28,6 +28,7 @@ def transform_commits(
     # Gather code changes
     d_commit_features, n_code_vector = {}, 0
     for hash, df_commits_sub in df_commits.groupby('hash'):
+        #
 
         # Compute LFICF features
         ax_lficf = project_wrapper.build_lficf(df_commits_sub)
@@ -48,8 +49,10 @@ def transform_commits(
         # Get vectors from commits
         ax_code_vector = code2vec.predict_code_vector([t[1] for t in l_codes if t is not None])
         if ax_code_vector is not None:
-            print('there')
             n_code_vector += 1
+            print(n_code_vector)
+            if n_code_vector > 100:
+                break
 
         d_commit_features[hash] = {
             'lficf': ax_lficf,

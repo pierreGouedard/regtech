@@ -3,10 +3,8 @@ import os
 from typing import List, Tuple, Optional
 from pathlib import Path
 import re
-import multiprocessing
 
 # Global import
-import IPython
 
 
 class JavaProjectWrapper(object):
@@ -102,6 +100,8 @@ class JavaProjectWrapper(object):
             if JavaProjectWrapper.is_valid_match('\n'.join(l_lines[:n + 1])):
                 return l_lines[:n + 1]
 
+        return l_lines[1:]
+
     def is_valid_filename(self, name):
         return os.path.splitext(name)[1] == self.file_extension
 
@@ -126,7 +126,7 @@ class JavaProjectWrapper(object):
         else:
             return
 
-        if len(l_lines) < sum(coord) - 1:
+        if len(l_lines) < sum(coord) + 1:
             return
 
         # Get class or method before change that overlap with code change coord

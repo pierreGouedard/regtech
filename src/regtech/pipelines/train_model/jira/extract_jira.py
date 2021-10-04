@@ -1,5 +1,7 @@
-from typing import Dict, Any, Optional
+# local import
+from typing import Optional
 import pandas as pd
+from random import randint
 
 
 def extract_jira_info(
@@ -16,8 +18,10 @@ def extract_jira_info(
 
     """
     if create_random_join_info:
-        # TODO: generate fake join table between test
-        df_jira = pd.DataFrame()
+        df_jira = pd.DataFrame([
+            {"commit_group": randint(0, n_commit_group - 1), "test_id": randint(0, n_tests)}
+        ])
     else:
         raise ValueError('extracting Jira is not implemented')
 
+    return df_jira

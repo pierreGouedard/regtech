@@ -11,8 +11,6 @@ class Extractor:
         self.on_error = on_error
 
     def extract_paths(self, path):
-        import os
-        print(os.path.exists(path))
         command = ['java', '-cp', self.jar_path, 'JavaExtractor.App', '--max_path_length',
                    str(self.max_path_length), '--max_path_width', str(self.max_path_width), '--file', path, '--no_hash']
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -20,13 +18,11 @@ class Extractor:
         output = out.decode().splitlines()
 
         if len(output) == 0:
-            print(os.path.exists(path))
             err = err.decode()
             if self.on_error == 'skip':
                 print(f'Error when file at {path} was parsed')
                 return None, None
             elif self.on_error == 'debug':
-                print('in_debug')
                 import IPython
                 IPython.embed()
             else:
