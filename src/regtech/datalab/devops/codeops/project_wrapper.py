@@ -29,21 +29,6 @@ class ProjectWrapper(object):
         self.code_wrappers = l_code_wrapper
         self.inverse_loc_frequency = None
 
-    def is_file_targeted(self, name: str) -> bool:
-        """
-        Check whether a file may be processed by a code wrapper
-
-        Parameters
-        ----------
-        name: str
-            File name with extension.
-
-        Returns
-        -------
-        bool
-        """
-        return any([w.is_valid_filename(name) for w in self.code_wrappers])
-
     def extract_file_list(self) -> 'ProjectWrapper':
         """
         Extract the list of file from the root dir.
@@ -54,7 +39,7 @@ class ProjectWrapper(object):
         """
         for project_dir in self.project_dirs:
             for root, dirs, files in os.walk(project_dir, topdown=True):
-                l_files = [os.path.abspath(os.path.join(root, name)) for name in files if self.is_file_targeted(name)]
+                l_files = [os.path.abspath(os.path.join(root, name)) for name in files]
                 self.files.extend(l_files)
 
         return self

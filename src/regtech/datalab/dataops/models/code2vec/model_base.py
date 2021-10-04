@@ -80,7 +80,7 @@ class Code2VecModelBase(abc.ABC):
         self.log('Checking number of examples ...')
         if self.config.is_training:
             self.config.NUM_TRAIN_EXAMPLES = self._get_num_of_examples_for_dataset(self.config.train_data_path)
-            self.log('    Number of train examples: {}'.format(self.config.NUM_TRAIN_EXAMPLES))
+            self.log('    Number of fit examples: {}'.format(self.config.NUM_TRAIN_EXAMPLES))
         if self.config.is_testing:
             self.config.NUM_TEST_EXAMPLES = self._get_num_of_examples_for_dataset(self.config.TEST_DATA_PATH)
             self.log('    Number of test examples: {}'.format(self.config.NUM_TEST_EXAMPLES))

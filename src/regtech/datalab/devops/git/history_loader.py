@@ -146,6 +146,21 @@ class GitLogLoader(object):
 
         return d_message_info
 
+    @staticmethod
+    def is_diff_key_complete(d_diff_keys: Dict[str, str]) -> bool:
+        """
+        Check whether dict of commit diff info is filled with all necessary keys.
+
+        Args:
+            d_diff_keys: dict
+                Dictionnary containing commit diff informations.
+
+        Returns:
+            bool
+
+        """
+        return all([k in d_diff_keys.keys() for k in GitLogLoader.diff_keys])
+
     def extract_git_history(self) -> List[Dict[str, str]]:
         """
         Main method to extract commit log and commit diff info.
@@ -190,7 +205,7 @@ class GitLogLoader(object):
 
         return history
 
-    def parse_log_history(self, commit_history: str) -> List[str]:
+    def parse_log_history(self, commit_history: str) -> List[Dict[str, str]]:
         """
         Parse commit logs.
 
@@ -232,7 +247,7 @@ class GitLogLoader(object):
         # return parsed commmit minus first element of list
         return l_commits[1:]
 
-    def extract_commit_diff(self, l_commits: Dict[str, str]) -> Dict[str, str]:
+    def extract_commit_diff(self, l_commits: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
         Extract commit diff info.
 
@@ -302,9 +317,15 @@ class GitLogLoader(object):
             """
             return re.findall(r"([0-9]+)", x)[i]
 
-        l_diff_info, d_diff_info = [], {}
+        l_diff_info, l_sub_diff_info, d_diff_info = [], [], {}
         for line in commit_diff.split('\n'):
             if self.pattern_diff_file.match(line):
+
+                # Changing source / target file
+                l_diff_info.extend([d.copy() for d in l_sub_diff_info if self.is_diff_key_complete(d)])
+                d_diff_info, l_sub_diff_info = {}, []
+
+                # Extract file paths
                 files = self.pattern_diff_file.sub('', line)
                 d_diff_info['file_source'] = self.format_commit_path(self.project_path, files.split(' ')[0])
                 d_diff_info['file_target'] = self.format_commit_path(self.project_path, files.split(' ')[1])
@@ -314,14 +335,17 @@ class GitLogLoader(object):
                 [del_pos_info, add_pos_info] = self.pattern_diff_pos.findall(line)[0].split(' ')
 
                 # Update dict of info
-                d_diff_info.update({
-                    'line_origin-': split_pos(del_pos_info, 0), 'nb_deletions': split_pos(del_pos_info, 1),
-                    'line_origin+': split_pos(add_pos_info, 0), 'nb_additions': split_pos(add_pos_info, 1)
-                })
+                try:
+                    d_diff_info.update({
+                        'line_origin-': split_pos(del_pos_info, 0), 'nb_deletions': split_pos(del_pos_info, 1),
+                        'line_origin+': split_pos(add_pos_info, 0), 'nb_additions': split_pos(add_pos_info, 1)
+                    })
+                except IndexError:
+                    continue
 
             # Break if all info has been recovered
-            if all([k in d_diff_info.keys() for k in self.diff_keys]):
-                l_diff_info.append(d_diff_info.copy())
-                d_diff_info = {}
+            if self.is_diff_key_complete(d_diff_info):
+                l_sub_diff_info.append(d_diff_info.copy())
+                d_diff_info = {'file_source': d_diff_info['file_source'], 'file_target': d_diff_info['file_target']}
 
         return l_diff_info

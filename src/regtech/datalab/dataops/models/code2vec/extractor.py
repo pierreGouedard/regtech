@@ -3,21 +3,35 @@ import subprocess
 
 
 class Extractor:
-    def __init__(self, config, jar_path, max_path_length, max_path_width):
+    def __init__(self, config, jar_path, max_path_length, max_path_width, on_error='skip'):
         self.config = config
         self.max_path_length = max_path_length
         self.max_path_width = max_path_width
         self.jar_path = jar_path
+        self.on_error = on_error
 
     def extract_paths(self, path):
+        import os
+        print(os.path.exists(path))
         command = ['java', '-cp', self.jar_path, 'JavaExtractor.App', '--max_path_length',
                    str(self.max_path_length), '--max_path_width', str(self.max_path_width), '--file', path, '--no_hash']
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
         output = out.decode().splitlines()
+
         if len(output) == 0:
+            print(os.path.exists(path))
             err = err.decode()
-            raise ValueError(err)
+            if self.on_error == 'skip':
+                print(f'Error when file at {path} was parsed')
+                return None, None
+            elif self.on_error == 'debug':
+                print('in_debug')
+                import IPython
+                IPython.embed()
+            else:
+                raise ValueError(err)
+
         hash_to_string_dict = {}
         result = []
         for i, line in enumerate(output):

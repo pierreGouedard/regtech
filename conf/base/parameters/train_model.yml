@@ -1,5 +1,5 @@
 # Parameters Smart testing
-path_project: data/train_inputs/guava
+path_project: data/train_inputs/git_projects
 path_c2v: data/train_inputs/c2v_models/java-large-release/saved_model_iter3.release
 branch: master
 date_start: 2021-01-01
@@ -13,3 +13,8 @@ git_options:
 custom_message_regex:
   regfstr_code: (?i)(regsftr\s?\d{4})
   alm_code: (?i)(alm\s?\d{4})
+
+n_test: 100
+n_commit_group: 1000
+create_random_test: True
+create_random_join_info: True

@@ -6,6 +6,10 @@ from kedro.pipeline import Pipeline, node
 from .commits.load_commits import build_commit_dataset
 from .commits.fit_model import fit_feature_model
 from .commits.transform_commits import transform_commits
+from .tests.extract_test_parameters import extract_test_parameters
+from .tests.augment_test_parameters import augment_tests
+from .tests.transform_tests import transform_tests
+from .jira.extract_jira import extract_jira_info
 
 
 def create_commit_pipeline() -> Pipeline:
@@ -52,30 +56,6 @@ def create_commit_pipeline() -> Pipeline:
     )
 
 
-def create_jira_pipeline() -> Pipeline:
-    """
-    Create jira pipeline.
-
-    Returns
-    -------
-    Pipeline
-
-    """
-    pass
-
-
-def create_defect_pipeline() -> Pipeline:
-    """
-    Create defect pipeline.
-
-    Returns
-    -------
-    Pipeline
-
-    """
-    pass
-
-
 def create_test_pipeline() -> Pipeline:
     """
     Create test pipeline.
@@ -85,10 +65,58 @@ def create_test_pipeline() -> Pipeline:
     Pipeline
 
     """
-    pass
+    return Pipeline(
+        [
+            node(
+                extract_test_parameters,
+                inputs={"create_random_test": "params:create_random_test"},
+                outputs="test_parameters",
+                name="extract_test_parameters",
+                tags=["extract_test_parameters"]
+            ),
+            node(
+                augment_tests,
+                inputs={"df_tests": 'test_parameters'},
+                outputs="augmented_test_parameters",
+                name="augment_tests",
+                tags=["augment_tests"]
+            ),
+            node(
+                transform_tests,
+                inputs={"df_tests": 'augmented_test_parameters'},
+                outputs="distributed_tests",
+                name="transform_tests",
+                tags=["transform_tests"]
+            ),
+        ],
+        tags=["tests_pipeline", "test_augmentation", "test_transform"],
+    )
 
 
-def create_train_pipeline() -> Pipeline:
+def create_jira_pipeline() -> Pipeline:
+    """
+    Create jira pipeline.
+
+    Returns
+    -------
+    Pipeline
+
+    """
+    return Pipeline(
+        [
+            node(
+                extract_jira_info,
+                inputs={"create_random_join_info": "params:create_random_join_info"},
+                outputs="jira_info",
+                name="extract_jira_info",
+                tags=["extract_jira_info"]
+            ),
+        ],
+        tags=["jira_pipeline"],
+    )
+
+
+def create_fit_pipeline() -> Pipeline:
     """
     Create test pipeline.
 

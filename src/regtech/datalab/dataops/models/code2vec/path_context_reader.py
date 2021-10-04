@@ -11,7 +11,7 @@ from .vocabularies import Code2VecVocabs
 
 
 class EstimatorAction(Enum):
-    Train = 'train'
+    Train = 'fit'
     Evaluate = 'evaluate'
     Predict = 'predict'
 
