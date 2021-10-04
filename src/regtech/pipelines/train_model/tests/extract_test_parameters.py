@@ -1,5 +1,5 @@
 # Global import
-from typing import Optional, List
+from typing import Optional, Dict
 import pandas as pd
 from faker import Faker
 from random import randint
@@ -10,7 +10,9 @@ import numpy as np
 from regtech.datalab.dataops.encoders.param_encoder import ParamEncoder
 
 
-def extract_test_parameters(df_tests: pd.DataFrame, regex_parameters: Optional[re.Pattern] = None) -> pd.DataFrame:
+def extract_test_parameters(
+        df_tests: pd.DataFrame, regex_parameters: Optional[re.Pattern] = None
+) -> Dict[int, np.ndarray]:
     """
 
     Args:

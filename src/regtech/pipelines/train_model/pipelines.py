@@ -11,6 +11,7 @@ from .tests.extract_test_parameters import extract_test_parameters
 from .tests.augment_test_parameters import augment_tests
 from .tests.transform_tests import transform_tests
 from .jira.extract_jira import extract_jira_info
+from .fit.build_datasets import build_dataset
 
 
 def create_commit_pipeline() -> Pipeline:
@@ -135,4 +136,19 @@ def create_fit_pipeline() -> Pipeline:
     Pipeline
 
     """
-    pass
+    return Pipeline(
+        [
+            node(
+                build_dataset,
+                inputs={
+                    "df_tests": "tests", "df_commits": "commit_dataset", "df_jira": "jira_info",
+                    "d_test_params": "test_parameters", "d_feature_commits": "transformed_commits",
+                    "n_step_commits": "params:n_step_commits"
+                },
+                outputs=["features", "targets"],
+                name="build_dataset",
+                tags=["build_dataset"]
+            ),
+        ],
+        tags=["fit_pipeline"],
+    )

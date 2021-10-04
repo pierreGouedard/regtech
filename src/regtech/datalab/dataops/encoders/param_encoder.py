@@ -34,7 +34,7 @@ class ParamEncoder:
                 r'='.join([x[0], x[1]]) for x in self.pattern_param.findall(x) if self.pattern_int.match(x[1]) is None
             ]))
 
-            # Get nuerical params
+            # Get numerical params
             deque(map(lambda x: self.update_param_map(x, 'num'), [
                 rf'{x[0]}=([0-9]+)' for x in self.pattern_param.findall(x) if self.pattern_int.match(x[1]) is not None
             ]))

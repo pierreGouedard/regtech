@@ -38,7 +38,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     Returns:
         A mapping from a pipeline name to a ``Pipeline`` object.
     """
-    train_pipelines = tp.create_commit_pipeline() + tp.create_test_pipeline() + tp.create_jira_pipeline()
+    train_pipelines = tp.create_commit_pipeline() + tp.create_test_pipeline() + tp.create_jira_pipeline() + \
+        tp.create_fit_pipeline()
 
     d_custom_pipelines = {
         "train_model": train_pipelines

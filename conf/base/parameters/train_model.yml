@@ -44,3 +44,5 @@ test_parameters:
   - param8=<int>
   - param9=v1
   - param9=v2
+
+n_step_commits: 100
