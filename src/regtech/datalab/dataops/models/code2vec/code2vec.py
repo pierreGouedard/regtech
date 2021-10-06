@@ -24,7 +24,8 @@ class Code2VecWrapper(object):
     max_path_width = 2
     n_embeddings = 384
 
-    def __init__(self, model_path: str, on_extraction_error: str = 'skip'):
+    def __init__(self, model_path: str, on_extraction_error: str = 'skip', verbose: int = 0):
+        self.verbose = verbose
         self.config = PredConfig(set_defaults=True, load_from_kwargs=True, verify=True, **{"load_path": model_path})
         self.driver = FileDriver('tmp_file', 'Code 2 vec file driver')
         self.model = Code2VecModel(self.config)
@@ -32,6 +33,14 @@ class Code2VecWrapper(object):
             self.config, jar_path=self.jar_path, max_path_length=self.max_path_length,
             max_path_width=self.max_path_width, on_error=on_extraction_error
         )
+
+    @staticmethod
+    def display_code(code: str):
+        print('_________')
+        print('Vectorizing: \n')
+        for line in code.split('\n'):
+            print(line)
+        print('_________')
 
     def predict_code_vector(self, l_codes: List[str], agg: str = 'mean') -> Optional[np.array]:
         """
@@ -55,10 +64,9 @@ class Code2VecWrapper(object):
             tmp_file = self.driver.TempFile(prefix="tmp_", suffix=".java")
             with open(tmp_file.path, 'w') as handle:
                 handle.write(code)
-            print('_________')
-            for l in code.split('\n'):
-                print(l)
-            print('_________')
+
+            if self.verbose:
+                self.display_code(code)
 
             predict_lines, hash_to_string_dict = self.path_extractor.extract_paths(tmp_file.path)
 
@@ -72,4 +80,4 @@ class Code2VecWrapper(object):
         elif agg == "mean":
             return np.mean(l_vectors, axis=0)
         else:
-            raise ValueError('agg {} not imlemented'.format(agg))
+            raise ValueError('agg {} not implemented'.format(agg))

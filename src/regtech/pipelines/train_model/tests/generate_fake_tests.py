@@ -19,17 +19,16 @@ import numpy as np
 from regtech.datalab.dataops.encoders.param_encoder import ParamEncoder
 
 
-def generate_tests(n_tests: Optional[int] = None, l_parameters: Optional[List[str]] = None) -> pd.DataFrame:
+def generate_fake_tests(n_tests: Optional[int] = None, l_parameters: Optional[List[str]] = None) -> pd.DataFrame:
     """
+    Generate fake test.
 
     Args:
-        create_random_test:
-        n_tests:
-        l_parameters:
-        regex_parameters
+        n_tests: int
+        l_parameters: list
 
     Returns:
-
+    pd.DataFrame
     """
     # Build fake test data
     fake = Faker()

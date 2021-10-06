@@ -1,5 +1,6 @@
-from typing import Dict
+from typing import Dict, Tuple
 import numpy as np
+from sklearn.decomposition import PCA
 
 # Local import
 from regtech.datalab.devops.codeops.project_wrapper import ProjectWrapper
@@ -7,20 +8,28 @@ from regtech.datalab.dataops.models.code2vec.code2vec import Code2VecWrapper
 
 
 def transform_commits(
-        df_commits, path_c2v_model: str, project_wrapper: ProjectWrapper
-) -> Dict[str, Dict[str, np.array]]:
+        df_commits, path_c2v_model: str, project_wrapper: ProjectWrapper, n_component_lficf: int
+) -> Tuple[Dict[str, Dict[str, np.array]], PCA]:
     """
+    Transform commits data using code2vec and location change frequency feature (lcicf).
 
     Parameters
     ----------
-    df_commits
-    path_project
-    path_c2v_model
-    project_wrapper
+    df_commits: pd.DataFrame
+        Contains tabular information on commit.
+    path_project: str
+        Path to git projects.
+    path_c2v_model: str
+        Path to code2Vec model.
+    project_wrapper: ProjectWrapper
+        Model to extract code from commit diff info.
+    n_component_lficf: int
+        number of component to use for the dim reduction of lcicf feature.
 
     Returns
     -------
-
+    tuple
+        commit features a dict where the key is the hash of the commit
     """
     # Instantiate c2v model
     code2vec = Code2VecWrapper(model_path=path_c2v_model, on_extraction_error='skip')
@@ -28,8 +37,6 @@ def transform_commits(
     # Gather code changes
     d_commit_features, n_code_vector = {}, 0
     for hash, df_commits_sub in df_commits.groupby('hash'):
-        #
-
         # Compute LFICF features
         ax_lficf = project_wrapper.build_lficf(df_commits_sub)
 
@@ -62,10 +69,15 @@ def transform_commits(
         # Log
         print(f"Features of commit {hash} computed")
 
-    import IPython
-    IPython.embed()
+    # Reduce dim of lficf using PCA
+    pca = PCA(n_components=n_component_lficf)
+    pca.fit(np.stack([d['lficf'] for d in d_commit_features.values()]))
+    d_commit_features = {
+        h: {'lficf': pca.transform(d['lficf'][np.newaxis, :])[0], 'code_vector': d['code_vector']}
+        for h, d in d_commit_features.items()
+    }
 
-    return d_commit_features
+    return d_commit_features, pca
 
 
 

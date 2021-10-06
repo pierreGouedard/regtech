@@ -1,20 +1,30 @@
 # Data Catalog Smart testing
+
+### Commits
 commit_dataset:
   type: pandas.CSVDataSet
   filepath: data/train_inputs/raw_data/commits.csv
-
-project_wrapper:
-  type: regtech.datalab.datasets.pickle.PickleDataSet
-  path: data/train_inputs/models/project_wrapper.pkl
 
 transformed_commits:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/transformed_data/transformed_commits.pkl
 
-test_transformer:
+project_wrapper:
   type: regtech.datalab.datasets.pickle.PickleDataSet
-  path: data/train_inputs/models/test_transformer.pkl
+  path: data/train_inputs/models/project_wrapper.pkl
 
+lficf_pca_model:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/models/lficf_pca.pkl
+
+
+### Jira
+jira_info:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/raw_data/jira_info.csv
+
+
+### Tests
 tests:
   type: pandas.CSVDataSet
   filepath: data/train_inputs/raw_data/tests.csv
@@ -27,14 +37,8 @@ transformed_tests:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/transformed_data/transformed_tests.pkl
 
-augmented_test_parameters:
-  type: pandas.CSVDataSet
-  filepath: data/train_inputs/transformed_data/augmented_test_parameters.pkl
 
-jira_info:
-  type: pandas.CSVDataSet
-  filepath: data/train_inputs/raw_data/jira_info.csv
-
+### Training
 features:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/learning_data/features.pkl

@@ -60,8 +60,11 @@ class Commit2Test():
         # Flatten
         X = layers.Flatten()(X)
 
-        # End with a dense FC layer
-        X = layers.Dense(latent_dim, name='output_layer')(X)
+        # put with a dense FC layer
+        X = layers.Dense(int((n_kernels + latent_dim) / 2), name='output_layer', activation="relu")(X)
+
+        # End with a sigmoid output layer
+        X = layers.Dense(latent_dim, name='output_layer', activation='sigmoid')(X)
 
         network = Model(inputs=X_input, outputs=X, name='model_embedding')
 
@@ -166,7 +169,7 @@ if __name__ == "__main__":
 
     # Example of dataset => building 5 random matrices of shape (1000, 36) [final shape (5, 1000, 36)] :
     X = np.stack([np.vstack([np.random.randn(input_dim[1]) for i in range(input_dim[0])]) for j in range(1000)])
-    y = np.stack([np.random.randn(latent_test_dim) for j in range(1000)])
+    y = np.stack([np.random.binomial(1, 0.3, latent_test_dim) for j in range(1000)])
 
     # Fit model
     c2t_model.fit(X, y)

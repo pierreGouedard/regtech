@@ -6,12 +6,12 @@ from kedro.pipeline import Pipeline, node
 from .commits.load_commits import build_commit_dataset
 from .commits.fit_model import fit_feature_model
 from .commits.transform_commits import transform_commits
-from .tests.generate_fake_tests import generate_tests
+from .tests.generate_fake_tests import generate_fake_tests
 from .tests.extract_test_parameters import extract_test_parameters
 from .tests.augment_test_parameters import augment_tests
-from .tests.transform_tests import transform_tests
 from .jira.extract_jira import extract_jira_info
 from .fit.build_datasets import build_dataset
+from .fit.train import train_model
 
 
 def create_commit_pipeline() -> Pipeline:
@@ -47,9 +47,9 @@ def create_commit_pipeline() -> Pipeline:
                 transform_commits,
                 inputs={
                     "df_commits": 'commit_dataset', "path_c2v_model": "params:path_c2v",
-                    "project_wrapper": "project_wrapper"
+                    "project_wrapper": "project_wrapper", "n_component_lficf": "params:n_component_lficf"
                 },
-                outputs="transformed_commits",
+                outputs=["transformed_commits", 'lficf_pca_model'],
                 name="transform_commits",
                 tags=["transform_commits"]
             ),
@@ -70,11 +70,11 @@ def create_test_pipeline() -> Pipeline:
     return Pipeline(
         [
             node(
-                generate_tests,
+                generate_fake_tests,
                 inputs={"n_tests": "params:n_tests", "l_parameters": "params:test_parameters"},
                 outputs="tests",
-                name="generate_test_parameters",
-                tags=["generate_test_parameters"]
+                name="generate_fake_tests",
+                tags=["generate_fake_tests"]
             ),
             node(
                 extract_test_parameters,
@@ -90,15 +90,8 @@ def create_test_pipeline() -> Pipeline:
                 name="augment_tests",
                 tags=["augment_tests"]
             ),
-            node(
-                transform_tests,
-                inputs={"df_tests": 'augmented_test_parameters'},
-                outputs="distributed_tests",
-                name="transform_tests",
-                tags=["transform_tests"]
-            ),
         ],
-        tags=["tests_pipeline", "test_augmentation", "test_transform"],
+        tags=["tests_pipeline", "test_transform"],
     )
 
 
@@ -141,13 +134,21 @@ def create_fit_pipeline() -> Pipeline:
             node(
                 build_dataset,
                 inputs={
-                    "df_tests": "tests", "df_commits": "commit_dataset", "df_jira": "jira_info",
-                    "d_test_params": "test_parameters", "d_feature_commits": "transformed_commits",
-                    "n_step_commits": "params:n_step_commits"
+                    "df_commits": "commit_dataset", "df_jira": "jira_info", "d_feature_commits": "transformed_commits",
+                    "n_step_commits": "params:n_step_commits", "n_tests": "params:n_tests"
                 },
                 outputs=["features", "targets"],
                 name="build_dataset",
                 tags=["build_dataset"]
+            ),
+            node(
+                train_model,
+                inputs={
+                    "ax_features": "features", "ax_targets": "targets"
+                },
+                outputs=["commit2test_model"],
+                name="train_commit2test",
+                tags=["train_commit2test"]
             ),
         ],
         tags=["fit_pipeline"],

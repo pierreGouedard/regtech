@@ -11,13 +11,14 @@ from regtech.datalab.dataops.encoders.param_encoder import ParamEncoder
 
 
 def extract_test_parameters(
-        df_tests: pd.DataFrame, regex_parameters: Optional[re.Pattern] = None
+        df_tests: pd.DataFrame, regex_parameters: Optional[str] = None
 ) -> Dict[int, np.ndarray]:
     """
+    Extract parameters from tests.
 
     Args:
-        df_tests:
-        regex_parameters
+        df_tests: Dataframe
+        regex_parameters: str
 
     Returns:
 
