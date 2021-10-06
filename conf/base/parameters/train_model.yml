@@ -1,7 +1,10 @@
 # Parameters Smart testing
+
+### Global
 path_project: data/train_inputs/git_projects
 path_c2v: data/train_inputs/c2v_models/java-large-release/saved_model_iter3.release
-branch: master
+
+### Commits
 date_start: 2021-01-01
 date_end: 2021-09-01
 git_options:
@@ -15,9 +18,11 @@ custom_message_regex:
   alm_code: (?i)(alm\s?\d{2,5})
 
 n_component_lficf: 100
-n_tests: 100
 n_commit_group: 100
 n_step_commits: 50
+
+### tests
+n_tests: 100
 create_random_test: True
 create_random_join_info: True
 regex_parameters: ((?:[a-z]|[0-9])+)=((?:[a-z]|[0-9])+)
@@ -47,3 +52,8 @@ test_parameters:
   - param9=v1
   - param9=v2
 
+### Training
+n_kernels: 200
+kernel_size: 5
+learning_rate: 0.01
+nb_epoch: 1000

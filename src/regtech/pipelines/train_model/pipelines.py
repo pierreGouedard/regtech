@@ -12,6 +12,7 @@ from .tests.augment_test_parameters import augment_tests
 from .jira.extract_jira import extract_jira_info
 from .fit.build_datasets import build_dataset
 from .fit.train import train_model
+from .fit.evaluate import evaluate
 
 
 def create_commit_pipeline() -> Pipeline:
@@ -144,11 +145,22 @@ def create_fit_pipeline() -> Pipeline:
             node(
                 train_model,
                 inputs={
-                    "ax_features": "features", "ax_targets": "targets"
+                    "ax_features": "features", "ax_targets": "targets", "n_kernels": "params:n_kernels",
+                    "kernel_size": "params:kernel_size", "learning_rate": "params:learning_rate",
+                    "nb_epoch": "params:nb_epoch"
                 },
-                outputs=["commit2test_model"],
+                outputs=["commit2test_network", "commit2test_params"],
                 name="train_commit2test",
                 tags=["train_commit2test"]
+            ),
+            node(
+                evaluate,
+                inputs={
+                    "commit2test_network": "commit2test_network", "commit2test_params": "commit2test_params"
+                },
+                outputs=None,
+                name="evaluate_commit2test",
+                tags=["evaluate_commit2test"]
             ),
         ],
         tags=["fit_pipeline"],

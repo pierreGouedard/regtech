@@ -46,3 +46,11 @@ features:
 targets:
   type: regtech.datalab.datasets.pickle.PickleDataSet
   path: data/train_inputs/learning_data/targets.pkl
+
+commit2test_network:
+  type: regtech.datalab.datasets.keras.KerasModelDataSet
+  path: data/train_inputs/models/commit2test/commit2test.h5
+
+commit2test_params:
+  type: regtech.datalab.datasets.json.JsonDataSet
+  path: data/train_inputs/models/commit2test/commit2test.json

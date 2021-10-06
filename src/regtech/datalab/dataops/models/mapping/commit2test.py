@@ -1,7 +1,8 @@
-from typing import List, Tuple
+from typing import Tuple, Optional, Dict, Any
 from matplotlib import pyplot as plt
 import numpy as np
 import tensorflow as tf
+#tf.compat.v1.enable_eager_execution()
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Model
@@ -14,7 +15,7 @@ class Commit2Test():
 
     def __init__(
             self, latent_test_dim: int, n_kernels: int, kernel_size: int, input_dim: Tuple[int, int],
-            learning_rate: float, nb_epoch: int, batch_size: int = 32
+            learning_rate: float, nb_epoch: int, batch_size: int = 32, network: Optional[Model] = None
     ):
         # training params
         self.learning_rate, self.nb_epoch, self.batch_size = learning_rate, nb_epoch, batch_size
@@ -27,24 +28,38 @@ class Commit2Test():
         self.n_kernels, self.kernel_size = n_kernels, kernel_size
 
         # Create and compile model
-        self.network = self.__create_network(self.latent_test_dim, self.n_kernels, self.kernel_size, self.input_dim)
-        self.network.compile(optimizer=self.optimizer, loss=MeanSquaredError())
+        if network is None:
+            self.network = self.__create_network(self.latent_test_dim, self.n_kernels, self.kernel_size, self.input_dim)
+            self.network.compile(optimizer=self.optimizer, loss=MeanSquaredError())
+        else:
+            self.network = network
 
         # Evaluation attribute
         self.history = None
+
+    @staticmethod
+    def from_dict(d_params: Dict[str, Any], network: Optional[Model] = None):
+        return Commit2Test(network=network, **d_params)
+
+    def to_dict(self):
+        return {
+            'input_dim': self.input_dim, 'n_kernels': self.n_kernels, 'kernel_size': self.kernel_size,
+            'latent_test_dim': self.latent_test_dim, 'learning_rate': self.learning_rate, 'batch_size': self.batch_size,
+            'nb_epoch': self.nb_epoch
+        }
 
     @staticmethod
     def __create_network(
             latent_dim: int, n_kernels: int, kernel_size: int, input_dim: Tuple[int, int]
     ) -> Model:
         """
-        Implement the forward propagation for the encoding layers:
-        CONV1D -> RELU -> MAXPOOL -> DENSE -> OUTPUT
+        Implement the forward propagation:
+        CONV1D -> RELU -> MAXPOOL -> DENSE -> RELU -> DENSE -> SIGMOID -> OUTPUT
 
         inputs dim are (n_batch, n_steps, n_embedding)
 
         In the case of chain of character encoding n_embedding = 36 and n_steps is large enough so that most
-        of the sentence won't be truncated
+        of the sentence won't be truncated.
 
         """
         X_input = layers.Input(input_dim)
@@ -61,7 +76,7 @@ class Commit2Test():
         X = layers.Flatten()(X)
 
         # put with a dense FC layer
-        X = layers.Dense(int((n_kernels + latent_dim) / 2), name='output_layer', activation="relu")(X)
+        X = layers.Dense(int((n_kernels + latent_dim) / 2), name='hidden_layer_1', activation="relu")(X)
 
         # End with a sigmoid output layer
         X = layers.Dense(latent_dim, name='output_layer', activation='sigmoid')(X)
@@ -90,8 +105,7 @@ class Commit2Test():
 
         # fit the model
         self.history = self.network.fit(
-            train_dataset, validation_data=val_dataset, epochs=self.nb_epoch, batch_size=self.batch_size,
-            callbacks=[es]
+            train_dataset, validation_data=val_dataset, epochs=self.nb_epoch, callbacks=[es]
         )
 
         if show_eval:
@@ -139,17 +153,20 @@ class Commit2Test():
         tensorflow dataset
             Train and val dataset composed of input and labels.
         """
+        # get nb sample
+        n_samples = X.shape[0]
+
         # Build final TF dataset
         all_dataset = tf.data.Dataset.zip((
             tf.data.Dataset.from_tensor_slices(X), tf.data.Dataset.from_tensor_slices(y),
         ))\
             .shuffle(buffer_size=32)
 
-        train_dataset = all_dataset.skip(int(len(all_dataset) * 0.05))\
+        train_dataset = all_dataset.skip(int(n_samples * 0.05))\
             .batch(self.batch_size, drop_remainder=False) \
             .prefetch(int(self.batch_size / 4))
 
-        val_dataset = all_dataset.take(int(len(all_dataset) * 0.05))\
+        val_dataset = all_dataset.take(int(n_samples * 0.05))\
             .batch(self.batch_size, drop_remainder=False) \
             .prefetch(int(self.batch_size / 4))
 
@@ -157,6 +174,10 @@ class Commit2Test():
 
 
 if __name__ == "__main__":
+    #########
+    # Usage
+    #########
+
     # Network parameters
     input_dim, latent_test_dim = (20, 100), 25
     n_kernels, kernel_size = 100, 5
@@ -164,7 +185,7 @@ if __name__ == "__main__":
     # Learning parameters
     learning_rate, nb_epoch = 0.01, 1000
 
-    # Instantiat model
+    # Instantiate model
     c2t_model = Commit2Test(latent_test_dim, n_kernels, kernel_size, input_dim, learning_rate, nb_epoch)
 
     # Example of dataset => building 5 random matrices of shape (1000, 36) [final shape (5, 1000, 36)] :
