@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 from tensorflow.keras import Model
-from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.losses import MeanSquaredError, cosine_similarity, BinaryCrossentropy
 from tensorflow.keras.callbacks import EarlyStopping
 
 
@@ -30,7 +30,7 @@ class Commit2Test():
         # Create and compile model
         if network is None:
             self.network = self.__create_network(self.latent_test_dim, self.n_kernels, self.kernel_size, self.input_dim)
-            self.network.compile(optimizer=self.optimizer, loss=MeanSquaredError())
+            self.network.compile(optimizer=self.optimizer, loss=BinaryCrossentropy())
         else:
             self.network = network
 
@@ -126,10 +126,10 @@ class Commit2Test():
         """
 
         # Get metrics
-        train_mse = self.network.evaluate(train_dataset, verbose=0)
-        test_mse = self.network.evaluate(val_dataset, verbose=0)
+        train_ce = self.network.evaluate(train_dataset, verbose=0)
+        test_ce = self.network.evaluate(val_dataset, verbose=0)
 
-        print('Train: %.3f, Test: %.3f' % (train_mse, test_mse))
+        print('Cross entropy error: Train: %.3f, Test: %.3f' % (test_ce, train_ce))
 
         # plot training history
         plt.plot(self.history.history['loss'], label='train')

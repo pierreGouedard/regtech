@@ -25,17 +25,37 @@ jira_info:
 
 
 ### Tests
-tests:
+historical_tests:
   type: pandas.CSVDataSet
-  filepath: data/train_inputs/raw_data/tests.csv
+  filepath: data/train_inputs/raw_data/historical_tests.csv
 
-test_parameters:
-  type: regtech.datalab.datasets.pickle.PickleDataSet
-  path: data/train_inputs/transformed_data/test_parameters.pkl
+master_tests:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/raw_data/master_tests.csv
 
-transformed_tests:
+validation_tests:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/raw_data/validation_tests.csv
+
+encoded_hitorical_test:
   type: regtech.datalab.datasets.pickle.PickleDataSet
-  path: data/train_inputs/transformed_data/transformed_tests.pkl
+  path: data/train_inputs/transformed_data/historical_test_encoded.pkl
+
+encoded_master_tests:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/transformed_data/master_test_encoded.pkl
+
+encoded_validation_tests:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/transformed_data/validation_test_encoded.pkl
+
+fuzzy_encoder:
+  type: regtech.datalab.datasets.pickle.PickleDataSet
+  path: data/train_inputs/models/fuzzy_encoder.pkl
+
+scored_validation_tests:
+  type: pandas.CSVDataSet
+  filepath: data/train_inputs/transformed_data/scored_validation_tests.csv
 
 
 ### Training

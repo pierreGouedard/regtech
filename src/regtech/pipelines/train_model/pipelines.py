@@ -6,9 +6,9 @@ from kedro.pipeline import Pipeline, node
 from .commits.load_commits import build_commit_dataset
 from .commits.fit_model import fit_feature_model
 from .commits.transform_commits import transform_commits
-from .tests.generate_fake_tests import generate_fake_tests
-from .tests.extract_test_parameters import extract_test_parameters
-from .tests.augment_test_parameters import augment_tests
+from .tests.encode import encoder_fit_transform
+from .tests.build_dataset import build_datasets
+from .tests.infer_master_tests import get_master_tests
 from .jira.extract_jira import extract_jira_info
 from .fit.build_datasets import build_dataset
 from .fit.train import train_model
@@ -71,28 +71,35 @@ def create_test_pipeline() -> Pipeline:
     return Pipeline(
         [
             node(
-                generate_fake_tests,
-                inputs={"n_tests": "params:n_tests", "l_parameters": "params:test_parameters"},
-                outputs="tests",
-                name="generate_fake_tests",
-                tags=["generate_fake_tests"]
+                build_datasets,
+                inputs={"path_test": "params:path_test"},
+                outputs=["historical_tests", "master_tests", "validation_tests"],
+                name="build_test_dataset",
             ),
             node(
-                extract_test_parameters,
-                inputs={"df_tests": "tests", "regex_parameters": "params:regex_parameters"},
-                outputs="test_parameters",
-                name="extract_test_parameters",
-                tags=["extract_test_parameters"]
+                encoder_fit_transform,
+                inputs={
+                    "df_historical_tests": "historical_tests", "df_master_tests": "master_tests",
+                    "df_validation_tests": "validation_tests", "path_stopwords": "params:path_stopwords",
+                    "threshold_inter": "params:threshold_inter", "threshold_levenstein": "params:threshold_levenstein"
+                },
+                outputs=[
+                    "encoded_historical_tests", "encoded_master_tests", "encoded_validation_tests", "fuzzy_encoder"
+                ],
+                name="encode_tests",
             ),
             node(
-                augment_tests,
-                inputs={"df_tests": 'test_parameters'},
-                outputs="augmented_test_parameters",
-                name="augment_tests",
-                tags=["augment_tests"]
+                get_master_tests,
+                inputs={
+                    "ax_validation_tests": "encoded_validation_tests", "ax_master_tests": "encoded_master_tests",
+                    "df_validation_tests": "validation_tests", "df_master_tests": "master_tests",
+                    "d_dict_reg_params": "params:dictionary_regression"
+                },
+                outputs='scored_validation_tests',
+                name="infer_master_tests",
             ),
         ],
-        tags=["tests_pipeline", "test_transform"],
+        tags=["tests_pipeline"],
     )
 
 

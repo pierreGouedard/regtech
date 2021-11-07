@@ -3,6 +3,8 @@
 ### Global
 path_project: data/train_inputs/git_projects
 path_c2v: data/train_inputs/c2v_models/java-large-release/saved_model_iter3.release
+path_stopwords: data/nltk_data/stopwords/english
+path_test: data/test_data/raw_tests.csv
 
 ### Commits
 date_start: 2021-01-01
@@ -22,6 +24,10 @@ n_commit_group: 100
 n_step_commits: 50
 
 ### tests
+threshold_levenstein: 0.3
+threshold_inter: 0.2
+threshold_lcs: 0.95
+threshold_hamming: 0.95
 n_tests: 100
 create_random_test: True
 create_random_join_info: True
@@ -54,6 +60,13 @@ test_parameters:
 
 ### Training
 n_kernels: 200
-kernel_size: 5
+kernel_size: 1
 learning_rate: 0.01
 nb_epoch: 1000
+
+### Matching
+dictionary_regression:
+  alpha: 0.00001
+  fit_intercept: True
+  normalize: False
+  max_iter: 1000
