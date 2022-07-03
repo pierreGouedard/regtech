@@ -76,6 +76,7 @@ class LassoDictRegression:
         ----------
         df_atoms
         index_col
+        sum_to_one
 
         Returns
         -------
